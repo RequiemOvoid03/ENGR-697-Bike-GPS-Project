@@ -1,0 +1,258 @@
+import smbus2
+import time
+import re
+
+# Update this with the correct bus number
+I2C_BUS = 22  # As per your information
+DEVICE_ADDRESS = 0x42  # Default I2C address for u-blox GPS modules
+
+bus = smbus2.SMBus(I2C_BUS)
+
+def read_u16(bus, addr, reg):
+    """Read an unsigned 16-bit value from the device."""
+    try:
+        high = bus.read_byte_data(addr, reg)
+        low = bus.read_byte_data(addr, reg + 1)
+        result = (high << 8) + low
+        # Debug print
+        # print(f"read_u16: Read {result} from register {reg}")
+        return result
+    except Exception as e:
+        print(f"Error reading u16 from register {reg}: {e}")
+        return 0
+
+def read_gps_data():
+    buffer = b''
+    max_buffer_size = 4096  # Define a reasonable buffer size to prevent overflows
+    try:
+        while True:
+            # Read the number of bytes available
+            num_bytes = read_u16(bus, DEVICE_ADDRESS, 0xFD)
+            # print(f"Number of bytes available: {num_bytes}")
+
+            if num_bytes == 0:
+                # print("No data available, sleeping...")
+                time.sleep(0.1)
+                continue
+
+            # Limit the number of bytes to read
+            num_bytes_to_read = min(num_bytes, 512)
+
+            # Read data in chunks
+            data = []
+            num_bytes_remaining = num_bytes_to_read
+            while num_bytes_remaining > 0:
+                to_read = min(num_bytes_remaining, 32)  # I2C buffer limitation
+                try:
+                    chunk = bus.read_i2c_block_data(DEVICE_ADDRESS, 0xFF, to_read)
+                    # Check for invalid data patterns and skip if necessary
+                    if all(b == 0xFF for b in chunk):
+                        print("Skipped chunk of 0xFF bytes")
+                        num_bytes_remaining -= to_read
+                        continue
+                    data.extend(chunk)
+                except Exception as e:
+                    print(f"Error reading data chunk: {e}")
+                    break
+                num_bytes_remaining -= to_read
+
+            if data:
+                # Clean the data
+                data = clean_data(bytes(data))
+                buffer += data
+                # Limit the buffer size
+                if len(buffer) > max_buffer_size:
+                    buffer = buffer[-max_buffer_size:]
+                # Process NMEA sentences
+                buffer = process_buffer(buffer)
+            else:
+                # print("No data read.")
+                pass
+            time.sleep(0.1)
+
+    except KeyboardInterrupt:
+        print("Interrupted by user.")
+        bus.close()
+
+def clean_data(buffer):
+    """Remove invalid characters from buffer."""
+    # Remove non-ASCII characters and control characters except CR (13) and LF (10)
+    cleaned = bytes([b for b in buffer if 32 <= b <= 126 or b in (10, 13)])
+    return cleaned
+
+def process_buffer(buffer):
+    """Extract NMEA sentences and parse GPS data."""
+    lines = buffer.split(b'\r\n')
+    buffer = lines[-1]  # Save incomplete line for next read
+    for line in lines[:-1]:
+        line_str = line.decode('ascii', errors='ignore').strip()
+        if not line_str.startswith('$'):
+            continue  # Skip lines that do not start with '$'
+        if verify_checksum(line_str):
+            parse_nmea_sentence(line_str)
+        else:
+            print(f"Invalid checksum for sentence: {line_str}")
+    return buffer
+
+def verify_checksum(nmea_sentence):
+    """Verify the checksum of a NMEA sentence."""
+    try:
+        sentence, checksum = nmea_sentence.split('*')
+    except ValueError:
+        print(f"Malformed NMEA sentence (no checksum separator '*'): {nmea_sentence}")
+        return False
+    sentence = sentence.lstrip('$')
+    calculated_checksum = 0
+    for char in sentence:
+        calculated_checksum ^= ord(char)
+    try:
+        provided_checksum = int(checksum, 16)
+    except ValueError:
+        print(f"Invalid checksum in NMEA sentence: {nmea_sentence}")
+        return False
+    if calculated_checksum == provided_checksum:
+        return True
+    else:
+        print(f"Checksum mismatch: calculated {calculated_checksum:02X}, provided {provided_checksum:02X}")
+        return False
+
+def parse_nmea_sentence(sentence):
+    """Parse NMEA sentences to extract data."""
+    fields = sentence.split(',')
+
+    if sentence.startswith('$GNGGA') or sentence.startswith('$GPGGA'):
+        # GGA - Global Positioning System Fix Data
+        parse_gga(fields)
+
+    elif sentence.startswith('$GNRMC') or sentence.startswith('$GPRMC'):
+        # RMC - Recommended Minimum Navigation Information
+        parse_rmc(fields)
+
+    elif sentence.startswith('$GNGLL') or sentence.startswith('$GPGLL'):
+        # GLL - Geographic Position - Latitude/Longitude
+        parse_gll(fields)
+
+    elif sentence.startswith('$GPGSV') or sentence.startswith('$GLGSV') or sentence.startswith('$GAGSV'):
+        # GSV - Satellites in View
+        parse_gsv(fields)
+
+    elif sentence.startswith('$GPGSA') or sentence.startswith('$GLGSA') or sentence.startswith('$GAGSA'):
+        # GSA - GNSS DOP and Active Satellites
+        parse_gsa(fields)
+    elif sentence.startswith('$GNVTG') or sentence.startswith('GPVTG'):
+        parse_vtg(fields)
+    else:
+        print(f"Unsupported NMEA sentence: {sentence}")
+
+def parse_gga(fields):
+    """Parse GGA sentence."""
+    if len(fields) >= 10:
+        lat_raw = fields[2]
+        lat_dir = fields[3]
+        lon_raw = fields[4]
+        lon_dir = fields[5]
+        altitude = fields[9]
+        altitude_units = fields[10]
+        convert_and_print(lat_raw, lat_dir, lon_raw, lon_dir)
+        if altitude and altitude.strip().upper() == 'M':
+            print(f"Altitude: {altitude} meters")
+        else:
+            print("Altitude data unavaliable or in unsupported units.")
+    else:
+        print("Invalid GGA sentence.")
+def parse_rmc(fields):
+    """Parse RMC sentence."""
+    if len(fields) >= 7:
+        lat_raw = fields[3]
+        lat_dir = fields[4]
+        lon_raw = fields[5]
+        lon_dir = fields[6]
+        convert_and_print(lat_raw, lat_dir, lon_raw, lon_dir)
+    else:
+        print("Invalid RMC sentence.")
+
+def parse_gll(fields):
+    """Parse GLL sentence."""
+    if len(fields) >= 5:
+        lat_raw = fields[1]
+        lat_dir = fields[2]
+        lon_raw = fields[3]
+        lon_dir = fields[4]
+        convert_and_print(lat_raw, lat_dir, lon_raw, lon_dir)
+    else:
+        print("Invalid GLL sentence.")
+
+def parse_gsv(fields):
+    """Parse GSV sentence."""
+    # GSV sentences provide information about satellites in view.
+    # For simplicity, we can print the number of satellites in view.
+    try:
+        num_messages = int(fields[1])
+        message_number = int(fields[2])
+        num_sv = int(fields[3])
+        print(f"GSV Message {message_number}/{num_messages}, Satellites in view: {num_sv}")
+        # Optionally, parse individual satellite data here.
+    except (ValueError, IndexError) as e:
+        print(f"Error parsing GSV sentence: {e}")
+def parse_vtg(fields):
+    """Parse VTG sentence to extract speed data"""
+    try:
+       speed_knots = fields[5]
+       speed_kph = fields[7]
+
+       speed_knots = float(speed_knots) if speed_knots else None
+       speed_kph = float(speed_kph) if speed_kph else None
+       print(f"Speed: {speed_knots} knots, {speed_kph} km/h")
+    except (IndexError, ValueError) as e:
+       print(f"Error parsing VTG sentence: {e}")
+
+def parse_gsa(fields):
+    """Parse GSA sentence."""
+    # GSA sentences provide information about the GNSS receiver operating mode, satellites used, and DOP values.
+    try:
+        mode = fields[1]
+        fix_type = fields[2]
+        sat_ids = fields[3:15]
+        pdop = fields[15]
+        hdop = fields[16]
+        vdop = fields[17].split('*')[0]  # Remove checksum if present
+        print(f"GSA Mode: {mode}, Fix Type: {fix_type}, PDOP: {pdop}, HDOP: {hdop}, VDOP: {vdop}")
+         # Optionally, process satellite IDs and DOP values.
+    except (IndexError, ValueError) as e:
+        print(f"Error parsing GSA sentence: {e}")
+
+def convert_and_print(lat_raw, lat_dir, lon_raw, lon_dir):
+    """Helper function to convert raw NMEA data to decimal degrees and print."""
+    if lat_raw and lon_raw and lat_dir and lon_dir:
+        lat = nmea_to_decimal(lat_raw, lat_dir)
+        lon = nmea_to_decimal(lon_raw, lon_dir)
+        if lat is not None and lon is not None:
+            print(f'Latitude: {lat}, Longitude: {lon}')
+        else:
+            print("Error converting coordinates.")
+    else:
+        print("Incomplete GPS data.")
+
+def nmea_to_decimal(raw_value, direction):
+    """Convert NMEA coordinate format to decimal degrees."""
+    try:
+        if '.' not in raw_value:
+            print(f"Invalid raw value (no decimal point): {raw_value}")
+            return None
+
+        # Degrees and minutes
+        decimal_pos = raw_value.find('.')
+        degrees_length = decimal_pos - 2
+        degrees = int(raw_value[:degrees_length])
+        minutes = float(raw_value[degrees_length:])
+
+        decimal = degrees + (minutes / 60)
+        if direction in ['S', 'W']:
+            decimal *= -1
+        return decimal
+    except Exception as e:
+        print(f"Error converting NMEA to decimal: {e}")
+        return None
+
+if __name__ == "__main__":
+    read_gps_data()

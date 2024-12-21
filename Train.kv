@@ -1,0 +1,319 @@
+<TrainScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+    
+        # Top Status Bar
+        BoxLayout:
+            size_hint_y: None
+            height: dp(56)
+            padding: [dp(10), 0, dp(10), 0]
+            spacing: dp(10)
+            pos_hint: {'top': 1}
+            canvas.before:
+                Color:
+                    rgba: 0.2, 0.2, 0.2, 0.5  # Dark gray background
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            MDIconButton:
+                icon: 'arrow-left'
+                on_release: app.go_back()
+                text_color: 1, 1, 1
+                icon_color: 1, 1, 1  # Ensure icon color is set to white
+                md_bg_color: 0, 0, 0, 0.5  # Optional: Add a semi-transparent black background for contrast
+            Label:
+                text: root.current_time
+                font_size: '18sp'
+                color: 1, 1, 1, 1
+            Label:
+                text: root.battery_level
+                font_size: '18sp'
+                color: 1, 1, 1, 1
+
+        # Metrics Display
+        GridLayout:
+            cols: 2
+            padding: dp(20)
+            spacing: dp(10)
+            row_default_height: dp(60)
+            row_force_default: True
+
+            canvas.before:
+                Color:
+                    rgba: 0.95, 0.95, 0.95, 1  # Light background color
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            # Heart Rate
+            BoxLayout:
+                orientation: 'horizontal'
+                padding: dp(10)
+                spacing: dp(10)
+                canvas.before:
+                    Color:
+                        rgba: 0.8, 0.8, 0.8, 1  # Light gray box background
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                    Color:
+                        rgb: 0, 0, 0, 1  # Black border color
+                    Line:
+                        width: 1.5
+                        rectangle: self.x, self.y, self.width, self.height
+                Image:
+                    source: 'icons/heart.png'  # Ensure you have a heart icon in the 'icons' directory
+                    size_hint_x: None
+                    width: dp(30)
+                    allow_stretch: True
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: "Heart Rate:"
+                        font_size: '16sp'
+                        halign: 'center'
+                        color: 0, 0, 0, 1
+                    Label:
+                        text: root.heart_rate
+                        font_size: '20sp'
+                        halign: 'center'
+                        bold: True
+                        color: 0, 0, 0, 1
+
+            # Cadence
+            BoxLayout:
+                orientation: 'horizontal'
+                padding: dp(10)
+                spacing: dp(10)
+                canvas.before:
+                    Color:
+                        rgba: 0.8, 0.8, 0.8, 1  # Light gray box background
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                    Color:
+                        rgba: 0, 0, 0, 1  # Black border color
+                    Line:
+                        width: 1.5
+                        rectangle: self.x, self.y, self.width, self.height
+                Image:
+                    source: 'icons/cadence.png'  # Ensure you have a cadence icon in the 'icons' directory
+                    size_hint_x: None
+                    width: dp(30)
+                    allow_stretch: True
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: "Cadence:"
+                        font_size: '16sp'
+                        halign: 'center'
+                        color: 0, 0, 0, 1
+                    Label:
+                        text: root.cadence
+                        font_size: '20sp'
+                        halign: 'center'
+                        bold: True
+                        color: 0, 0, 0, 1
+
+            # Elapsed Time
+            BoxLayout:
+                orientation: 'horizontal'
+                padding: dp(10)
+                spacing: dp(10)
+                canvas.before:
+                    Color:
+                        rgba: 0.8, 0.8, 0.8, 1  # Light gray box background
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                    Color:
+                        rgba: 0, 0, 0, 1  # Black border color
+                    Line:
+                        width: 1.5
+                        rectangle: self.x, self.y, self.width, self.height
+                Image:
+                    source: 'icons/time.png'  # Ensure you have a time icon in the 'icons' directory
+                    size_hint_x: None
+                    width: dp(30)
+                    allow_stretch: True
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: "Elapsed Time:"
+                        font_size: '16sp'
+                        halign: 'center'
+                        color: 0, 0, 0, 1
+                    Label:
+                        text: root.elapsed_time
+                        font_size: '20sp'
+                        halign: 'center'
+                        bold: True
+                        color: 0, 0, 0, 1
+
+            # Distance
+            BoxLayout:
+                orientation: 'horizontal'
+                padding: dp(10)
+                spacing: dp(10)
+                canvas.before:
+                    Color:
+                        rgba: 0.8, 0.8, 0.8, 1  # Light gray box background
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                    Color:
+                        rgb: 0, 0, 0, 1  # Black border color
+                    Line:
+                        width: 1.5
+                        rectangle: self.x, self.y, self.width, self.height
+                Image:
+                    source: 'icons/distance.png'  # Ensure you have a distance icon in the 'icons' directory
+                    size_hint_x: None
+                    width: dp(30)
+                    allow_stretch: True
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: "Distance:"
+                        font_size: '16sp'
+                        halign: 'center'
+                        color: 0, 0, 0, 1
+                    Label:
+                        text: root.distance
+                        font_size: '20sp'
+                        halign: 'center'
+                        bold: True
+                        color: 0, 0, 0, 1
+
+            # Speed
+            BoxLayout:
+                orientation: 'horizontal'
+                padding: dp(10)
+                spacing: dp(10)
+                canvas.before:
+                    Color:
+                        rgba: 0.8, 0.8, 0.8, 1  # Light gray box background
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                    Color:
+                        rgb: 0, 0, 0, 1  # Black border color
+                    Line:
+                        width: 1.5
+                        rectangle: self.x, self.y, self.width, self.height
+                Image:
+                    source: 'icons/speed.png'  # Ensure you have a speed icon in the 'icons' directory
+                    size_hint_x: None
+                    width: dp(30)
+                    allow_stretch: True
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: "Speed:"
+                        font_size: '16sp'
+                        halign: 'center'
+                        color: 0, 0, 0, 1
+                    Label:
+                        text: root.speed
+                        font_size: '20sp'
+                        halign: 'center'
+                        bold: True
+                        color: 0, 0, 0, 1
+
+            # Average Power
+            BoxLayout:
+                orientation: 'horizontal'
+                padding: dp(10)
+                spacing: dp(10)
+                canvas.before:
+                    Color:
+                        rgb: 0.8, 0.8, 0.8, 1  # Light gray box background
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                    Color:
+                        rgb: 0, 0, 0, 1  # Black border color
+                    Line:
+                        width: 1.5
+                        rectangle: self.x, self.y, self.width, self.height
+                Image:
+                    source: 'icons/power.png'  # Ensure you have a power icon in the 'icons' directory
+                    size_hint_x: None
+                    width: dp(30)
+                    allow_stretch: True
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: "Avg Power:"
+                        font_size: '16sp'
+                        halign: 'center'
+                        color: 0, 0, 0, 1
+                    Label:
+                        text: root.avg_power
+                        font_size: '20sp'
+                        halign: 'center'
+                        bold: True
+                        color: 0, 0, 0, 1
+
+            # Average Heart Rate
+            BoxLayout:
+                orientation: 'horizontal'
+                padding: dp(10)
+                spacing: dp(10)
+                canvas.before:
+                    Color:
+                        rgba: 0.8, 0.8, 0.8, 1  # Light gray box background
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                    Color:
+                        rgb: 0, 0, 0, 1  # Black border color
+                    Line:
+                        width: 1.5
+                        rectangle: self.x, self.y, self.width, self.height
+                Image:
+                    source: 'icons/heart.png'  # Reusing the heart icon for average heart rate
+                    size_hint_x: None
+                    width: dp(30)
+                    allow_stretch: True
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: "Avg Heart Rate:"
+                        font_size: '16sp'
+                        halign: 'center'
+                        color: 0, 0, 0, 1
+                    Label:
+                        text: root.avg_heart_rate
+                        font_size: '20sp'
+                        halign: 'center'
+                        bold: True
+                        color: 0, 0, 0, 1
+
+        # Bottom Navigation
+        BoxLayout:
+            size_hint_y: None
+            height: dp(60)
+            padding: dp(10)
+            spacing: dp(10)
+            canvas.before:
+                Color:
+                    rgba: 0.2, 0.2, 0.2, 1  # Dark gray background
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Button:
+                text: "Power"
+                font_size: '18sp'
+                background_normal: ''
+                background_color: 0.3, 0.3, 0.3, 1
+            Button:
+                text: "Menu"
+                font_size: '18sp'
+                background_normal: ''
+                background_color: 0.3, 0.3, 0.3, 1
+            Button:
+                text: "Play/Pause"
+                font_size: '18sp'
+                background_normal: ''
+                background_color: 0.3, 0.3, 0.3, 1

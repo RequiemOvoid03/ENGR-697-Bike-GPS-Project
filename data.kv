@@ -1,0 +1,232 @@
+#:import Graph kivy_garden.graph.Graph
+#:import MDCard kivymd.uix.card.MDCard
+#:import MDLabel kivymd.uix.label.MDLabel
+#:import MDIconButton kivymd.uix.button.MDIconButton
+#:import MDGridLayout kivymd.uix.gridlayout.MDGridLayout
+#:import dp kivy.metrics.dp
+
+<DataScreen>:
+    name: 'data'
+    
+    BoxLayout:
+        orientation: 'vertical'
+
+        # Navigation bar at the top
+        BoxLayout:
+            size_hint_y: None
+            height: dp(56)  # Fixed height for the nav bar
+            padding: dp(10)
+            canvas.before:
+                Color:
+                    rgba: 0.5, 0.5, 0.5, 1  # Dark gray background for the navbar
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+            MDIconButton:
+                icon: 'arrow-left'
+                on_release: root.go_back()
+                user_font_size: '24sp'
+                theme_text_color: 'Custom'
+                user_font_size: '24sp'
+                theme_text_color: 'Custom'
+                text_color: 1, 1, 1, 1
+                md_bg_color: 0, 0, 0, 0.5
+
+        ScrollView:
+            canvas.before:
+                Color:
+                    rgba: 0.5, 0.5, 0.5, 1  # Light gray background behind the graphs
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+            MDGridLayout:
+                cols: 1
+                adaptive_height: True
+                padding: dp(10)
+                spacing: dp(10)
+
+                # Distance Traveled
+                MDCard:
+                    orientation: 'vertical'
+                    size_hint: 1, None
+                    height: dp(250)
+                    padding: dp(10)
+                    elevation: 3
+                    md_bg_color: 0.2, 0.2, 0.2, 1  # Darker gray card background
+
+                    MDIcon:
+                        icon: 'map-marker-distance'  # Example icon for distance
+                        size_hint: None, None
+                        size: dp(24), dp(24)
+                        pos_hint: {'x': 0, 'y': 1}
+                        theme_text_color: 'Custom'
+                        text_color: 1, 1, 1, 1  # White color for the icon
+
+                    MDLabel:
+                        text: 'Distance Traveled'
+                        theme_text_color: 'Custom'
+                        text_color: 1, 1, 1, 1  # White text color
+                        font_style: 'H6'
+                        halign: 'center'
+                        size_hint_y: None
+                        height: dp(30)
+
+                    BoxLayout:
+                        id: distance_traveled_chart
+                        size_hint_y: 1
+
+                # Average Speed
+                MDCard:
+                    orientation: 'vertical'
+                    size_hint: 1, None
+                    height: dp(250)
+                    padding: dp(10)
+                    elevation: 3
+                    md_bg_color: 0.2, 0.2, 0.2, 1  # Darker gray card background
+
+                    MDIcon:
+                        icon: 'speedometer'  # Example icon for speed
+                        size_hint: None, None
+                        size: dp(24), dp(24)
+                        pos_hint: {'x': 0, 'y': 1}
+                        theme_text_color: 'Custom'
+                        text_color: 1, 1, 1, 1  # White color for the icon
+
+                    MDLabel:
+                        text: 'Average Speed'
+                        theme_text_color: 'Custom'
+                        text_color: 1, 1, 1, 1  # White text color
+                        font_style: 'H6'
+                        halign: 'center'
+                        size_hint_y: None
+                        height: dp(30)
+
+                    BoxLayout:
+                        id: average_speed_chart
+                        size_hint_y: 1
+
+                # Last Ride Duration
+                MDCard:
+                    orientation: 'vertical'
+                    size_hint: 1, None
+                    height: dp(250)
+                    padding: dp(10)
+                    elevation: 1
+                    md_bg_color: 0.2, 0.2, 0.2, 1  # Darker gray card background
+
+                    # Icon at the top left
+                    MDIcon:
+                        icon: 'clock-outline'  # Example icon for time
+                        size_hint: None, None
+                        size: dp(24), dp(24)
+                        pos_hint: {'x': 0, 'y': 1}
+                        theme_text_color: 'Custom'
+                        text_color: 1, 1, 1, 1  # White color for the icon
+
+                    MDLabel:
+                        text: 'Last Ride Duration'
+                        theme_text_color: 'Custom'
+                        text_color: 1, 1, 1, 1  # White text color
+                        font_style: 'H6'
+                        halign: 'center'
+                        size_hint_y: None
+                        height: dp(30)
+
+                    BoxLayout:
+                        id: last_ride_duration_chart
+                        size_hint_y: 1
+
+                # Elevation
+                MDCard:
+                    orientation: 'vertical'
+                    size_hint: 1, None
+                    height: dp(250)
+                    padding: dp(10)
+                    elevation: 1
+                    md_bg_color: 0.2, 0.2, 0.2, 1  # Darker gray card background
+
+                    # Icon at the top left
+                    MDIcon:
+                        icon: 'terrain'  # Example icon for elevation
+                        size_hint: None, None
+                        size: dp(24), dp(24)
+                        pos_hint: {'x': 0, 'y': 1}
+                        theme_text_color: 'Custom'
+                        text_color: 1, 1, 1, 1  # White color for the icon
+
+                    MDLabel:
+                        text: 'Elevation'
+                        theme_text_color: 'Custom'
+                        text_color: 1, 1, 1, 1  # White text color
+                        font_style: 'H6'
+                        halign: 'center'
+                        size_hint_y: None
+                        height: dp(30)
+
+                    BoxLayout:
+                        id: elevation_chart
+                        size_hint_y: 1
+
+                # Calories Burned
+                MDCard:
+                    orientation: 'vertical'
+                    size_hint: 1, None
+                    height: dp(250)
+                    padding: dp(10)
+                    elevation: 1
+                    md_bg_color: 0.2, 0.2, 0.2, 1  # Darker gray card background
+
+                    # Icon at the top left
+                    MDIcon:
+                        icon: 'fire'  # Example icon for calories
+                        size_hint: None, None
+                        size: dp(24), dp(24)
+                        pos_hint: {'x': 0, 'y': 1}
+                        theme_text_color: 'Custom'
+                        text_color: 1, 1, 1, 1  # White color for the icon
+
+
+                    MDLabel:
+                        text: 'Calories Burned'
+                        theme_text_color: 'Custom'
+                        text_color: 1, 1, 1, 1  # White text color
+                        font_style: 'H6'
+                        halign: 'center'
+                        size_hint_y: None
+                        height: dp(30)
+
+                    BoxLayout:
+                        id: calories_burned_chart
+                        size_hint_y: 1
+
+                # Road Material
+                MDCard:
+                    orientation: 'vertical'
+                    size_hint: 1, None
+                    height: dp(250)
+                    padding: dp(10)
+                    elevation: 5
+                    md_bg_color: 0.2, 0.2, 0.2, 1  # Darker gray card background
+
+                    # Icon at the top left
+                    MDIcon:
+                        icon: 'road-variant'  # Example icon for road material
+                        size_hint: None, None
+                        size: dp(24), dp(24)
+                        pos_hint: {'x': 0, 'y': 1}
+                        theme_text_color: 'Custom'
+                        text_color: 1, 1, 1, 1  # White color for the icon
+
+                    MDLabel:
+                        text: 'Road Material'
+                        theme_text_color: 'Custom'
+                        text_color: 1, 1, 1, 1  # White text color
+                        font_style: 'H6'
+                        halign: 'center'
+                        size_hint_y: None
+                        height: dp(30)
+
+                    BoxLayout:
+                        id: road_material_chart
+                        size_hint_y: 1

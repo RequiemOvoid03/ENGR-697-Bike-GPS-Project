@@ -1,0 +1,141 @@
+<ProfileScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+
+        # Navigation bar at the top
+        BoxLayout:
+            size_hint_y: None
+            height: dp(60)  # Slightly increased height for a modern look
+            padding: dp(10)
+            canvas.before:
+                Color:
+                    rgba: 0.5, 0.5, 0.5, 1  # Slightly darker gray for the navbar
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+            MDIconButton:
+                icon: 'arrow-left'
+                pos_hint: {'center_x': 0.1, 'top': 1}
+                on_release: root.go_back()
+                user_font_size: '24sp'
+                theme_text_color: 'Custom'
+                text_color: 1, 1, 1, 1  # White arrow color for visibility
+                md_bg_color: 0, 0, 0, 0.5
+
+        # Scrollable content
+        ScrollView:
+            canvas.before:
+                Color:
+                    rgba: 0.95, 0.95, 0.95, 1  # Light off-white background to feel more modern
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+            MDBoxLayout:
+                orientation: 'vertical'
+                padding: dp(20)  # Increased padding to allow for better touch interaction
+                spacing: dp(15)  # More spacing to allow for breathing room between elements
+                adaptive_height: True
+                size_hint_y: None
+
+                
+
+                # Profile Picture Section with subtle shadow and round image
+                AnchorLayout:
+                    anchor_x: 'center'
+                    anchor_y: 'center'
+                    size_hint_y: None
+                    height: dp(150)
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        size_hint: None, None
+                        size: dp(150), dp(150)
+                        padding: dp(10)
+                        spacing: dp(10)
+                        canvas.before:
+                            Color:
+                                rgba: 0, 1, 1, 1
+                            RoundedRectangle:
+                                size: self.size
+                                pos: self.pos
+                                radius: [dp(75), dp(75), dp(75), dp(75)]  # Circular image
+                        pos_hint: {'center_x': 0.5}
+
+                        FitImage:
+                            source: 'Tylerthecreator.png'
+                            size_hint: None, None
+                            size: dp(130), dp(130)
+                            radius: [dp(65),dp(65), dp(65), dp(65)]
+
+                # Input fields with subtle borders and focus colors
+                MDTextField:
+                    id: name_input
+                    hint_text: "Name"
+                    mode: "rectangle"
+                    icon_right: "account"
+                    size_hint_y: None
+                    height: dp(50)
+                    fill_color: 0.95, 0.95, 0.95, 1  # Lighter gray fill to make input fields more subtle
+                    line_color_focus: app.theme_cls.primary_color  # Highlight border color on focus
+
+                MDTextField:
+                    id: email_input
+                    hint_text: "Email"
+                    mode: "rectangle"
+                    icon_right: "email"
+                    size_hint_y: None
+                    height: dp(50)
+                    fill_color: 0.95, 0.95, 0.95, 1
+                    line_color_focus: app.theme_cls.primary_color
+
+                MDTextField:
+                    id: Bicycle_input
+                    hint_text: "Cyclist Level"
+                    mode: "rectangle"
+                    icon_right: "lock"
+                    size_hint_y: None
+                    height: dp(50)
+                    fill_color: 0.95, 0.95, 0.95, 1
+                    line_color_focus: app.theme_cls.primary_color
+
+                MDTextField:
+                    id: Type_input
+                    hint_text: "Bicycle Model"
+                    mode: "rectangle"
+                    icon_right: "bike"
+                    size_hint_y: None
+                    height: dp(50)
+                    fill_color: 0.95, 0.95, 0.95, 1
+                    line_color_focus: app.theme_cls.primary_color
+
+                MDTextField:
+                    id: dob_input
+                    hint_text: "Date of Birth"
+                    mode: "rectangle"
+                    icon_right: "calendar"
+                    size_hint_y: None
+                    height: dp(50)
+                    fill_color: 0.95, 0.95, 0.95, 1
+                    line_color_focus: app.theme_cls.primary_color
+
+                MDTextField:
+                    id: country_input
+                    hint_text: "Country/Region"
+                    mode: "rectangle"
+                    icon_right: "earth"
+                    size_hint_y: None
+                    height: dp(50)
+                    fill_color: 0.95, 0.95, 0.95, 1
+                    line_color_focus: app.theme_cls.primary_color
+
+                # Save Changes button with subtle elevation and rounded corners
+                MDRaisedButton:
+                    text: "Save Changes"
+                    md_bg_color: app.theme_cls.primary_color
+                    pos_hint: {'center_x': 0.5}
+                    size_hint_y: None
+                    height: dp(50)
+                    radius: [dp(12), dp(12), dp(12), dp(12)]  # Rounded button for a modern look
+                    on_release: root.save_profile()
